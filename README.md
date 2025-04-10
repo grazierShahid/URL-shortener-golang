@@ -42,7 +42,7 @@ A high-performance URL shortener service built with Go, featuring real-time anal
       "short_key": "abc123",
       "total_clicks": 42,
       "country_stats": [
-        { "country": "United States", "count": 20 },
+        { "country": "Bangladesh", "count": 20 },
         { "country": "India", "count": 15 }
       ],
       "time_stats": [
