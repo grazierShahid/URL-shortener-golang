@@ -113,3 +113,45 @@ func GetURLAnalytics(c *gin.Context) {
 		"time_stats":    timeStats,
 	})
 }
+
+func GetAllURLStats(c *gin.Context) {
+	rows, err := database.DB.Query(`
+        SELECT short_key, 
+               COUNT(*) as total_clicks,
+               MAX(click_time) as last_clicked,
+               COUNT(DISTINCT ip_address) as unique_visitors,
+               COUNT(DISTINCT country) as unique_countries
+        FROM url_clicks 
+        GROUP BY short_key
+        ORDER BY total_clicks DESC
+    `)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch statistics"})
+		return
+	}
+	defer rows.Close()
+
+	stats := []gin.H{}
+	for rows.Next() {
+		var shortKey string
+		var totalClicks, uniqueVisitors, uniqueCountries int
+		var lastClicked time.Time
+
+		if err := rows.Scan(&shortKey, &totalClicks, &lastClicked, &uniqueVisitors, &uniqueCountries); err != nil {
+			continue
+		}
+
+		stats = append(stats, gin.H{
+			"short_key":        shortKey,
+			"total_clicks":     totalClicks,
+			"last_clicked":     lastClicked,
+			"unique_visitors":  uniqueVisitors,
+			"unique_countries": uniqueCountries,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"total_urls": len(stats),
+		"stats":      stats,
+	})
+}

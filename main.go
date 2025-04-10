@@ -23,5 +23,7 @@ func main() {
 
 	r.GET("/api/analytics/:key", handler.GetURLAnalytics)
 
+	r.GET("/api/stats", handler.GetAllURLStats)
+
 	r.Run(":8080")
 }
